@@ -15,5 +15,5 @@ redirected_products_collector(product_urls, result)
 
 print(len(result))
 
-with open('unprocessed_urls.json', 'w', encoding='utf-8') as list:
+with open('data/unprocessed_urls.json', 'w', encoding='utf-8') as list:
     json.dump(result, list, indent=4, ensure_ascii=False)

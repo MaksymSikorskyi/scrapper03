@@ -68,6 +68,13 @@ def get_product_id(url):
     product_id = (url.split('/')[-1]).split('-')[-1]
     return product_id
 
+def redirected_products_collector(product_urls_list, processed_list):
+    for record in product_urls_list:
+        if len(record['1 size pics set']) == 0:
+            # print(len(record['1 size pics set']), len(record['2 size pics set']), len(record['3 size pics set']))
+            processed_list.append(record['product url'])
+
+
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 print(datetime.datetime.now())
 soup = get_data(url, headers=headers)
@@ -116,10 +123,10 @@ for url in lego_theme_url_list:
     theme_url.clear()
 
 print('Paginated urls collecting complete.')
+
 print(datetime.datetime.now())
 
 for url in lego_paginated_urls:
-    # time.sleep(1)
     soup = get_data(url, headers=headers)
     products = soup.find_all('h3', class_='ProductLeaf_titleRow__KqWbB')
 
@@ -127,68 +134,69 @@ for url in lego_paginated_urls:
         product_url = product.find('a').get('href')
         products_url.append(f'https://www.lego.com{product_url}')
     
-    # lego_paginated_urls.clear
 
-with open('data/product_urls', 'a', encoding='utf-8') as file:
+with open('data/product_urls.json', 'w', encoding='utf-8') as file:
     json.dump(products_url, file, indent=4, ensure_ascii=False)
 
 print('Collecting product urls complete')
+print(len(products_url))
 print(datetime.datetime.now())
 
-# full_products_data = []
-# raw_mediaset = []
-# product_media_urls = []
-# product_media_full_size_picture = []
+full_products_data = []
+raw_mediaset = []
+product_media_urls = []
+product_media_full_size_picture = []
 
-# page_count = 0
-# print(products_url)
-# for page in products_url:
-#     product_data = {
-#         'product url': None,
-#         'name': None,
-#         'lego index': None,
-#         'full media set': None,
-#         'fixed size pics set': None
-#     }
+page_count = 0
+print(products_url)
+for page in products_url:
+    product_data = {
+        'product url': None,
+        'name': None,
+        'lego index': None,
+        'full media set': None,
+        'fixed size pics set': None
+    }
 
-#     product_data['product url'] = page
-#     product_data['name'] = get_product_name(page)
-#     product_data['lego index'] = get_product_id(page)
+    product_data['product url'] = page
+    product_data['name'] = get_product_name(page)
+    product_data['lego index'] = get_product_id(page)
 
-#     time.sleep(10)
+    time.sleep(5)
 
-#     soup = get_data(page, headers=headers)
-#     # data = soup.find_all('div', class_='ProductGallerystyles__MediaWrapper-sc-1uy048w-1 kBxAec')   
-#     data = soup.find_all('picture', class_='ProductGallerystyles__StyledPicture-sc-1uy048w-4 yhckI')
-#     for page in data:
-#         result = page.find('source').get('srcset')
-#         raw_mediaset.append(result)
-#         for i in raw_mediaset:
-#             media_urlset = i.split(', ')
+    soup = get_data(page, headers=headers)
+    # data = soup.find_all('div', class_='ProductGallerystyles__MediaWrapper-sc-1uy048w-1 kBxAec')   
+    data = soup.find_all('picture', class_='ProductGallerystyles__StyledPicture-sc-1uy048w-4 yhckI')
+    for page in data:
+        result = page.find('source').get('srcset')
+        raw_mediaset.append(result)
+        for i in raw_mediaset:
+            media_urlset = i.split(', ')
 
-#             for x in media_urlset:
-#                 pic = x.split(' ')[0]
-#                 product_media_urls.append(pic)  
+            for x in media_urlset:
+                pic = x.split(' ')[0]
+                product_media_urls.append(pic)  
 
-#             for y in product_media_urls:
-#                 if y[-3:] == '1.5':
-#                     product_media_full_size_picture.append('y')
+            for y in product_media_urls:
+                if y[-3:] == '1.5':
+                    product_media_full_size_picture.append('y')
 
-#     page_count += 1
-#     print(page_count)
-#     print(product_data)
+    page_count += 1
+    # print(page_count)
+    # print(product_data)
 
 
-#     product_data['full media set'] = product_media_urls
-#     product_data['fixed size pics set'] = product_media_full_size_picture
-#     full_products_data.append(product_data)
-#     raw_mediaset.clear()
-#     product_media_urls.clear()
-#     product_media_full_size_picture.clear()  
+    product_data['full media set'] = product_media_urls
+    product_data['fixed size pics set'] = product_media_full_size_picture
+    full_products_data.append(product_data)
+    raw_mediaset.clear()
+    product_media_urls.clear()
+    product_media_full_size_picture.clear()  
 
-# print(datetime.datetime.now())
-# print(len(full_products_data))
+print(datetime.datetime.now())
+print('First cycle complete')
+print(len(full_products_data))
 
-# with open('data/products_data', 'a', encoding='utf-8') as file:
-#     json.dump(full_products_data, file, indent=4, ensure_ascii=False)
+with open('data/products_data', 'w', encoding='utf-8') as file:
+    json.dump(full_products_data, file, indent=4, ensure_ascii=False)
 
